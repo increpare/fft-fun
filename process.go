@@ -27,6 +27,10 @@ func c(f float64) complex128 {
 	return complex(f, 0)
 }
 
+func inside(x int, a int, b int) bool {
+	return x > a && x < b
+}
+
 func win(samples []complex128) []complex128 {
 	winsize := 1024
 	samples = samples[0 : (len(samples)/winsize)*winsize]
@@ -50,29 +54,33 @@ func win(samples []complex128) []complex128 {
 		h := len(x) / 2
 		innerdrop := int((0.8) * float64(h))
 		outerdrop := int((0.993) * float64(h))
-		if i == 0 {
-			fmt.Printf("%d - %d\n", innerdrop, outerdrop)
-		}
 
+		count := 0
 		//clear values outside of hearing range
 		for j := range x {
-			if ((j < h-outerdrop) || (j > h+outerdrop)) || ((j > h-innerdrop) && (j < h+innerdrop)) {
-				//	x[j] = 0
+			if !(inside(j, h-outerdrop, h+outerdrop) && !inside(j, h-innerdrop, h+innerdrop)) {
+				x[j] = 0
+			} else {
+				count++
 			}
 		}
 
-		offset := 4
-		if offset > 0 {
-			for j := h - outerdrop; j <= h-innerdrop; j++ {
-				x[j] = x[j+offset]
-				x[2*h-j] = x[2*h-j-offset]
-			}
-		} else {
-			for j := h - innerdrop; j >= h-outerdrop; j-- {
-				x[j] = x[j+offset]
-				x[2*h-j] = x[2*h-j-offset]
-			}
+		if i == 0 {
+			fmt.Printf("%d - %d (%d)\n", innerdrop, outerdrop, count)
 		}
+
+		// offset := 4
+		// if offset > 0 {
+		// 	for j := h - outerdrop; j <= h-innerdrop; j++ {
+		// 		x[j] = x[j+offset]
+		// 		x[2*h-j] = x[2*h-j-offset]
+		// 	}
+		// } else {
+		// 	for j := h - innerdrop; j >= h-outerdrop; j-- {
+		// 		x[j] = x[j+offset]
+		// 		x[2*h-j] = x[2*h-j-offset]
+		// 	}
+		// }
 
 		fft.InvFft(x)
 		for j := 0; j < winsize/2; j++ {
