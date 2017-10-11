@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"github.com/ledyba/go-fft/fft"
+	"github.com/youpy/go-wav"
 	"io"
 	"log"
 	"os"
-
-	"github.com/ledyba/go-fft/fft"
-	"github.com/youpy/go-wav"
 )
 
 func crunch(samples []int) {
@@ -28,7 +28,7 @@ func c(f float64) complex128 {
 }
 
 func win(samples []complex128) []complex128 {
-	winsize := 512
+	winsize := 1024
 	samples = samples[0 : (len(samples)/winsize)*winsize]
 	out := make([]complex128, len(samples))
 	for i := 0; i+winsize < len(samples); i += winsize / 2 {
@@ -45,11 +45,32 @@ func win(samples []complex128) []complex128 {
 		// 	x[j+skip] = x[j]
 		// }
 
+		//want to transpose a bit
+		//hearing range seem to be from 0.8-0.993
 		h := len(x) / 2
-		middleDrop := int((0.95) * float64(h))
+		innerdrop := int((0.8) * float64(h))
+		outerdrop := int((0.993) * float64(h))
+		if i == 0 {
+			fmt.Printf("%d - %d\n", innerdrop, outerdrop)
+		}
+
+		//clear values outside of hearing range
 		for j := range x {
-			if !((j < h-middleDrop) || (j > h+middleDrop)) {
-				x[j] = 0
+			if ((j < h-outerdrop) || (j > h+outerdrop)) || ((j > h-innerdrop) && (j < h+innerdrop)) {
+				//	x[j] = 0
+			}
+		}
+
+		offset := 4
+		if offset > 0 {
+			for j := h - outerdrop; j <= h-innerdrop; j++ {
+				x[j] = x[j+offset]
+				x[2*h-j] = x[2*h-j-offset]
+			}
+		} else {
+			for j := h - innerdrop; j >= h-outerdrop; j-- {
+				x[j] = x[j+offset]
+				x[2*h-j] = x[2*h-j-offset]
 			}
 		}
 
