@@ -95,7 +95,7 @@ func win(samples []complex128) []complex128 {
 
 func main() {
 	if len(os.Args) != 3 {
-		log.Fatalf("Usage: simpleRead <file.wav>\n")
+		log.Fatalf("Usage: simpleRead <file.wav> <output.wav>\n")
 	}
 	f, err := os.Open(os.Args[1])
 	if err != nil {
