@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-const winsize = 128
+const winsize = 512
 
 func Sft(data []complex128) {
 	for i := range data {
@@ -85,7 +85,8 @@ func audible(f float64) bool {
 
 func indexToHz(i int) float64 {
 	if i > winsize/2 {
-		i = winsize - i
+		//uh is this right? it seems to introduce bad artefacts when i remove the - 1 tho (inverting sweep.wav)
+		i = winsize - 1 - i
 	}
 	return float64(i*44100) / float64(winsize)
 }
@@ -147,7 +148,7 @@ func win(samples []complex128) []complex128 {
 				x := make([]complex128, winsize)
 				copy(x, samples[i:i+winsize])
 				fft.Fft(x)
-				removeInaudible(x)
+				//removeInaudible(x)
 				//mirror(x)
 				Sft(x)
 				for j := 0; j < winsize/2; j++ {

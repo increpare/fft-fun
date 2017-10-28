@@ -1,0 +1,15 @@
+1: maybe it'd be better to have it single threaded if it streamed to disk in real time so you could play as it was encoding (I guess the parallel loops could be changed so they interleave then it could be written in groups of 4...)? Dunno!
+
+2: the first frequency index isn't mirrored, os if there were four bins, it looks like 0,1,2,1 (rather than 0,1,1,0), so 
+	x[i]=x[len(x)-i] for i>1 i<len(x)
+
+3: should be possible to do Sft only looping over first half of frequencies?
+	for j := 0; j < len(data); j++ { //this loop, but putting the second operation
+
+4: ask about profiling? It seems to use profiling tools you need to have explicit tests in go?
+
+5: probably should write a simple png visualization of the fft decomposition of a track. should be easy...indicate all windows, and also which bits are audible
+
+DONE 6: try inverting a rising glissando!
+
+7: try finding a dataset that tells you what the relative volume of certain frequencies is, and normalising for that before/after transforming
